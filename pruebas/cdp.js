@@ -10,4 +10,4 @@ ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.method==='Runtime.exceptionThro
 await send('Page.enable');await send('Runtime.enable');await send('Emulation.setDeviceMetricsOverride',{width:+W,height:+H,deviceScaleFactor:+DPR,mobile:+W<700});
 await send('Page.navigate',{url});await new Promise(r=>setTimeout(r,2500));
 let n=0;for(const js of steps){n++;const r=await send('Runtime.evaluate',{expression:js,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)console.log('EXC',JSON.stringify(r.exceptionDetails).slice(0,300));console.log(n,JSON.stringify(r.result&&r.result.value));await new Promise(r=>setTimeout(r,500));const s=await send('Page.captureScreenshot',{format:'png'});fs.writeFileSync(out+'/'+n+'.png',Buffer.from(s.data,'base64'))}
-ch.kill();process.exit(0)})();
+ch.kill();await new Promise(r=>setTimeout(r,500));try{fs.rmSync(out+'/prof',{recursive:true,force:true})}catch(e){};process.exit(0)})();

@@ -3,40 +3,20 @@
   "use strict";
   var P = window.TMP_PRODUCTOS || [], $ = function (s) { return document.querySelector(s); }, $$ = function (s) { return [].slice.call(document.querySelectorAll(s)); };
   var TIENDA = "https://www.tiendatumundopet.cl/products/", LIM = 12, mostrar = LIM;
-  var num = function (n, d) { return Number(n).toLocaleString("es-CL", { maximumFractionDigits: d == null ? 0 : d }); };
-  var clp = function (n) { return "$" + Math.round(n).toLocaleString("es-CL"); };
-  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
-  var sinTilde = function (s) { return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); };
+  var C = window.TMPCalc, num = C.num, clp = C.clp, esc = C.esc, sinTilde = C.sinTilde, EST = C.EST, cantidad = C.cantidad;
   var LS = { get: function () { try { return JSON.parse(localStorage.getItem("tmpcalc.v1") || "{}"); } catch (e) { return {}; } }, set: function (o) { try { localStorage.setItem("tmpcalc.v1", JSON.stringify(o)); } catch (e) {} } };
-  var EST = { ficha: ["ok", "Dosis verificada con la ficha"], sinficha: ["mid", "Dosis informada por la tienda"], corregido: ["warn", "Corregida según la ficha"], porconfirmar: ["bad", "Dosis por confirmar"] };
-
-  /* ---------- cálculo (una función pura por producto) ---------- */
-  function evaluar(p, L) {
-    var envases = Math.ceil(L / p.r), porL = p.p / p.r;
-    return { p: p, envases: envases, total: envases * p.p, costoApp: porL * L, por1000: porL * 1000, aplic: p.r / L, dosis: (p.ml != null) ? p.ml * L : null };
-  }
-  function cantidad(x) {
-    if (x.dosis == null) return null;
-    var u = x.p.u, v = x.dosis, t = (v < 10 ? num(v, 1) : num(v, 0)) + " " + u, eq = [];
-    if (u === "ml") { if (v <= 10) eq.push("≈ " + num(v * 20, 0) + " gotas"); if (v >= 2.5) eq.push("≈ " + num(v / 5, 1) + " cucharaditas"); }
-    return { t: t, eq: eq.join(" · ") };
-  }
 
   /* ---------- filtros y pintado ---------- */
   function litros() { var v = parseFloat(String($("#litros").value).replace(",", ".")); return v > 0 ? v : 0; }
   function llenarFam() {
-    var c = {}; P.forEach(function (p) { c[p.fam] = (c[p.fam] || 0) + 1; });
-    $("#fam").innerHTML = '<option value="">Todas las categorías (' + P.length + ")</option>" + Object.keys(c).sort(function (a, b) { return c[b] - c[a] || a.localeCompare(b, "es"); }).map(function (k) { return '<option value="' + esc(k) + '">' + esc(k) + " (" + c[k] + ")</option>"; }).join("");
+    $("#fam").innerHTML = '<option value="">Todas las categorías (' + P.length + ")</option>" + C.familias(P).map(function (k) { return '<option value="' + esc(k[0]) + '">' + esc(k[0]) + " (" + k[1] + ")</option>"; }).join("");
   }
   function calcular(reset) {
     if (reset) mostrar = LIM;
     var L = litros(), ag = $("#agua").value, fam = $("#fam").value, q = sinTilde($("#q").value.trim()), ord = $("#orden").value;
     LS.set({ litros: L, agua: ag, fam: fam, orden: ord });
     if (!L) { $("#resumen").innerHTML = "Escribe los litros de tu acuario para empezar."; $("#lista").innerHTML = ""; $("#mas").hidden = true; return; }
-    var rows = P.filter(function (p) { return (!ag || p.agua === ag) && (!fam || p.fam === fam) && (!q || sinTilde(p.n + " " + p.vend).indexOf(q) >= 0); }).map(function (p) { return evaluar(p, L); }).filter(function (x) { return x.envases <= 30; });
-    var conf = rows.filter(function (x) { return x.p.est !== "porconfirmar"; }), pend = rows.filter(function (x) { return x.p.est === "porconfirmar"; });
-    var cmp = { costo: function (a, b) { return a.por1000 - b.por1000; }, dosis: function (a, b) { return (a.dosis == null) - (b.dosis == null) || a.dosis - b.dosis; }, rinde: function (a, b) { return b.p.r - a.p.r; }, nombre: function (a, b) { return a.p.n.localeCompare(b.p.n, "es"); } }[ord];
-    conf.sort(cmp); rows = conf.concat(pend);
+    var rows = C.filtrar(P, { agua: ag, fam: fam, q: $("#q").value, orden: ord }, L);
     $("#resumen").innerHTML = rows.length ? "Para <b>" + num(L, L % 1 ? 1 : 0) + " L</b> encontramos <b>" + rows.length + "</b> producto" + (rows.length > 1 ? "s" : "") + (ord === "costo" ? ", del más económico por aplicación al más caro." : ".") : "";
     if (!rows.length) { $("#lista").innerHTML = '<div class="vacio">No encontramos productos con esos filtros. Prueba con «Todas» en el tipo de agua o borra la búsqueda.</div>'; $("#mas").hidden = true; return; }
     $("#lista").innerHTML = rows.slice(0, mostrar).map(function (x, i) { return tarjeta(x, i === 0 && ord === "costo" && rows.length > 1 && x.p.est !== "porconfirmar", L); }).join("");
@@ -44,7 +24,7 @@
   }
   function tarjeta(x, mejor, L) {
     var p = x.p, e = EST[p.est], c = cantidad(x), dosisTxt = p.d ? p.d.replace(" / ", " por cada ") : "—";
-    var aplic = x.aplic >= 1 ? "para " + num(Math.floor(x.aplic)) + (Math.floor(x.aplic) > 1 ? " aplicaciones" : " aplicación") : x.envases + " envases";
+    var aplic = C.aplicaciones(x);
     var datos = (c ? '<div class="dato clave"><small>Para tu acuario</small><b>' + esc(c.t) + "</b>" + (c.eq ? "<i>" + esc(c.eq) + "</i>" : "") + "</div>" : '<div class="dato"><small>Dosis</small><b>' + esc(p.est === "porconfirmar" ? "Ver ficha" : "—") + "</b></div>") +
       '<div class="dato"><small>Etiqueta</small><b>' + esc(dosisTxt) + '</b></div><div class="dato"><small>Rinde</small><b>' + num(p.r, p.r % 1 ? 1 : 0) + ' L</b><i>' + aplic + '</i></div>' +
       '<div class="dato"><small>Costo</small><b>' + clp(x.total) + '</b><i>' + x.envases + " envase" + (x.envases > 1 ? "s" : "") + " · esta aplicación " + clp(x.costoApp) + "</i></div>";
@@ -55,7 +35,7 @@
   /* ---------- medidas del acuario ---------- */
   function medidas() {
     var l = +$("#mL").value, a = +$("#mA").value, h = +$("#mH").value, f = $("#mDesc").checked ? 0.9 : 1;
-    if (l > 0 && a > 0 && h > 0) { var v = Math.round(l * a * h / 1000 * f * 10) / 10; $("#mRes").textContent = num(l) + " × " + num(a) + " × " + num(h) + " cm" + (f < 1 ? " − 10 %" : "") + " = " + num(v, 1) + " litros"; $("#litros").value = v; calcular(true); } else $("#mRes").textContent = "";
+    if (l > 0 && a > 0 && h > 0) { var v = C.volumen(l, a, h, $("#mDesc").checked); $("#mRes").textContent = num(l) + " × " + num(a) + " × " + num(h) + " cm" + ($("#mDesc").checked ? " − 10 %" : "") + " = " + num(v, 1) + " litros"; $("#litros").value = v; calcular(true); } else $("#mRes").textContent = "";
   }
 
   /* ---------- conversiones ---------- */
