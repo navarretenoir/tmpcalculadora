@@ -1,0 +1,3 @@
+TMP Calculadora te dice cuánto producto necesitas para tu acuario o estanque, cuánto rinde cada envase y cuál conviene más.
+
+Usa los datos de la ficha de cada producto de Tu Mundo Pet y funciona sin internet.

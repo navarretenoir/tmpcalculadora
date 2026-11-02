@@ -1,0 +1,6 @@
+TMP Calculadora para macOS (Intel + Apple Silicon) e iOS/iPadOS — desarrollada por Javiera Navarrete para Tu Mundo Pet.
+Necesita un Mac con Xcode: brew install xcodegen && ./preparar-web.sh && xcodegen generate && open TMPCalculadora.xcodeproj
+Elige el esquema «TMPCalculadora-macOS» (o iOS), tu equipo de desarrollo y compila. Para distribuir fuera de la App Store hay que
+firmar y notarizar con una cuenta de Apple Developer; la App Store requiere esa misma cuenta.
+Este proyecto NO se pudo compilar desde Linux: es el mismo anfitrión probado de Regla de 3 y Escala de Notas, con otra configuración.
+El ícono se amplió desde 512 px: conviene reemplazar icono-1024.png por el original del logo si lo tienes.

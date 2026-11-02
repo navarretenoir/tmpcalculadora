@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="theme-color" content="#052C2B">
+<title>TMP Calculadora</title>
+<link rel="icon" href="img/icono-512.png">
+<link rel="stylesheet" href="fuentes/fuentes.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <img class="logo" src="img/logo-horizontal.png" alt="Tu Mundo Pet">
+    <span class="sello">Calculadora</span>
+    <nav class="tabs" id="tabs" aria-label="Secciones">
+      <button data-v="calc" aria-current="page">Dosis</button>
+      <button data-v="conv">Conversiones</button>
+      <button data-v="info">Cómo calcula</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+ <section id="v-calc" class="vista">
+  <div class="hero">
+    <p class="kicker">Herramientas</p>
+    <h1>Calculadora de dosificación</h1>
+    <p class="lead">Dinos el litraje de tu acuario o estanque y te decimos cuánto producto necesitas, cuánto rinde cada envase y cuál conviene más.</p>
+    <div class="caja">
+      <div class="campos">
+        <label class="fld"><span>Litros de tu acuario</span><input id="litros" type="number" inputmode="decimal" min="1" max="50000" value="120"></label>
+        <label class="fld"><span>Tipo de agua</span>
+          <select id="agua"><option value="">Todas</option><option value="dulce">Agua dulce</option><option value="marino">Agua marina</option><option value="estanque">Estanque o pileta</option></select></label>
+        <label class="fld"><span>¿Qué necesitas?</span><select id="fam"></select></label>
+        <label class="fld"><span>Buscar producto</span><input id="q" type="search" placeholder="Ej.: anticloro, Fritz, bacterias"></label>
+      </div>
+      <details class="medidas"><summary>No sé los litros: calcular con las medidas</summary>
+        <div class="campos m3">
+          <label class="fld"><span>Largo (cm)</span><input id="mL" type="number" inputmode="decimal" min="1"></label>
+          <label class="fld"><span>Ancho (cm)</span><input id="mA" type="number" inputmode="decimal" min="1"></label>
+          <label class="fld"><span>Alto del agua (cm)</span><input id="mH" type="number" inputmode="decimal" min="1"></label>
+        </div>
+        <label class="chk"><input type="checkbox" id="mDesc" checked> Descontar ~10 % por sustrato y decoración</label>
+        <p class="mres" id="mRes"></p>
+      </details>
+    </div>
+  </div>
+  <div class="resultado">
+    <div class="barra"><p id="resumen" class="resumen" aria-live="polite"></p>
+      <label class="fld orden"><span>Ordenar por</span><select id="orden"><option value="costo">Menor costo por aplicación</option><option value="dosis">Menor cantidad por aplicación</option><option value="rinde">Mayor rendimiento</option><option value="nombre">Nombre</option></select></label></div>
+    <div id="lista" class="lista"></div>
+    <button class="btn sec" id="mas" hidden>Ver más productos</button>
+    <p class="aviso"><b>Importante.</b> Son cantidades de referencia calculadas con los datos de cada ficha. Sigue siempre la etiqueta del envase y, ante la duda, consulta al equipo de la tienda. Los precios son los de la tienda al <span id="fecha"></span> y pueden haber cambiado.</p>
+  </div>
+ </section>
+
+ <section id="v-conv" class="vista" hidden>
+  <div class="hero chico"><p class="kicker">Herramientas</p><h1>Conversiones</h1><p class="lead">Unidades que se usan todos los días para dosificar.</p></div>
+  <div class="grid2">
+   <div class="tarjeta"><h2>Galones ⇄ litros</h2>
+     <div class="par"><label class="fld"><span>Galones (EE. UU.)</span><input id="cG" type="number" inputmode="decimal"></label><label class="fld"><span>Litros</span><input id="cL" type="number" inputmode="decimal"></label></div>
+     <p class="nota">1 galón estadounidense = 3,785 litros. Muchas etiquetas dosifican «por 10 galones» (≈ 38 L).</p></div>
+   <div class="tarjeta"><h2>Mililitros, gotas y cucharaditas</h2>
+     <div class="par"><label class="fld"><span>Mililitros</span><input id="cM" type="number" inputmode="decimal"></label><label class="fld"><span>Gotas</span><input id="cD" type="number" inputmode="decimal"></label></div>
+     <p class="nota" id="cT">Referencia: 1 ml ≈ 20 gotas · 1 cucharadita = 5 ml · 1 cucharada = 15 ml.</p></div>
+   <div class="tarjeta ancha"><h2>Regla de tres para una dosis</h2>
+     <p class="nota">Si la etiqueta dice «<b>X ml</b> por cada <b>Y litros</b>», escribe esos datos y los litros de tu acuario.</p>
+     <div class="par3"><label class="fld"><span>Dosis (ml)</span><input id="rX" type="number" inputmode="decimal" step="any"></label><label class="fld"><span>por cada (L)</span><input id="rY" type="number" inputmode="decimal" step="any"></label><label class="fld"><span>Tu acuario (L)</span><input id="rZ" type="number" inputmode="decimal" step="any"></label></div>
+     <p class="gran" id="rRes">—</p></div>
+  </div>
+ </section>
+
+ <section id="v-info" class="vista" hidden>
+  <div class="hero chico"><p class="kicker">Transparencia</p><h1>Cómo calcula</h1><p class="lead">De dónde salen los números y qué tan confiables son.</p></div>
+  <div class="grid2">
+   <div class="tarjeta"><h2>La cuenta</h2>
+     <p>Cada producto trae su <b>dosis</b> (por ejemplo, 5 ml por cada 38 L) y su <b>rendimiento</b>: los litros que trata un envase completo.</p>
+     <ul><li>Cantidad para tu acuario = dosis ÷ litros de la etiqueta × tus litros.</li><li>Envases = tus litros ÷ rendimiento, redondeado hacia arriba.</li><li>Costo por aplicación = precio ÷ rendimiento × tus litros. Es la forma justa de comparar envases de distinto tamaño.</li></ul></div>
+   <div class="tarjeta"><h2>Verificación de los datos</h2>
+     <p>Revisamos las dosis de los <b id="nTot">169</b> productos contra la ficha de cada uno en la tienda:</p>
+     <ul class="estados"><li><span class="tag ok">Verificada</span> la dosis coincide con la ficha <b id="nOk"></b></li><li><span class="tag mid">Informada por la tienda</span> la ficha no trae la dosis escrita <b id="nSin"></b></li><li><span class="tag warn">Corregida</span> se ajustó según la ficha <b id="nCor"></b></li><li><span class="tag bad">Por confirmar</span> no se pudo validar <b id="nPor"></b></li></ul></div>
+   <div class="tarjeta ancha"><h2>Lo que la calculadora no sabe</h2>
+     <ul><li>Los <b>tratamientos con varios días</b> (por ejemplo, medicamentos) se repiten según la ficha: aquí se calcula una aplicación.</li><li>Los <b>baños de corales (DIP)</b> y similares se miden por el recipiente, no por los litros del acuario.</li><li>La <b>mitad de dosis en arrecife</b> o con invertebrados que pidan algunas fichas debe ajustarse a mano.</li><li>No reemplaza el consejo técnico del equipo de Tu Mundo Pet.</li></ul>
+     <p class="nota">Datos de <a href="https://www.tiendatumundopet.cl/" data-ext>tiendatumundopet.cl</a> al <span id="fecha2"></span>. App creada por Javiera Navarrete para Tu Mundo Pet. Funciona sin internet.</p></div>
+  </div>
+ </section>
+</main>
+
+<nav class="bn" id="bn" aria-label="Secciones">
+  <button data-v="calc" aria-current="page"><svg viewBox="0 0 24 24"><path d="M12 3c3.5 4.5 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 2.5-6.5 6-11z"/></svg>Dosis</button>
+  <button data-v="conv"><svg viewBox="0 0 24 24"><path d="M4 8h13m0 0-3-3m3 3-3 3M20 16H7m0 0 3-3m-3 3 3 3"/></svg>Conversiones</button>
+  <button data-v="info"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg>Cómo calcula</button>
+</nav>
+<script src="datos/productos.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+TMP Calculadora — Acuerdo de uso
+
+Aplicación desarrollada por Javiera Navarrete para Tu Mundo Pet. Las cantidades que entrega son de referencia, calculadas con la información de cada ficha de producto: siga siempre la etiqueta del envase y consulte al equipo de la tienda ante cualquier duda. Los precios corresponden a la fecha indicada en la aplicación y pueden haber cambiado.
+
+La aplicación no recopila ni envía datos personales: funciona sin conexión y solo guarda en este equipo los litros y filtros que usted ingresa. Se entrega «tal cual», sin garantías.

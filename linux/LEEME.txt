@@ -1,0 +1,3 @@
+TMP Calculadora para Linux (GTK 4 + WebKitGTK 6) — desarrollada por Javiera Navarrete para Tu Mundo Pet.
+Calcula la dosis de los productos de Tu Mundo Pet según los litros de tu acuario. Funciona sin internet.
+Ejecutar: tmp-calculadora   (variable TMPCALC_UI para probar otra carpeta de interfaz)

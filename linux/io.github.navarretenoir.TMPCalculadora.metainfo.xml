@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.navarretenoir.TMPCalculadora</id>
+  <name>TMP Calculadora</name>
+  <summary>Cuánto producto necesitas para tu acuario, con los datos de Tu Mundo Pet</summary>
+  <summary xml:lang="en">How much product your aquarium needs, with Tu Mundo Pet data</summary>
+  <developer id="io.github.navarretenoir"><name>Javiera Navarrete</name></developer>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <description>
+    <p>Dices los litros de tu acuario, estanque o pileta y TMP Calculadora te dice cuánto producto usar, cuánto rinde cada envase y cuál conviene más, con la dosis de la ficha de 169 productos de Tu Mundo Pet.</p>
+    <ul>
+      <li>Dosis para tu acuario en ml, gotas y cucharaditas</li>
+      <li>Envases necesarios y costo por aplicación</li>
+      <li>Filtros por tipo de agua y categoría</li>
+      <li>Conversiones y regla de tres para dosis</li>
+      <li>Funciona sin internet</li>
+    </ul>
+    <p>Desarrollada por Javiera Navarrete para Tu Mundo Pet.</p>
+  </description>
+  <url type="homepage">https://github.com/navarretenoir/tmpcalculadora</url>
+  <url type="vcs-browser">https://gitlab.com/navarretenoir/tmpcalculadora</url>
+  <url type="bugtracker">https://gitlab.com/navarretenoir/tmpcalculadora/-/issues</url>
+  <launchable type="desktop-id">io.github.navarretenoir.TMPCalculadora.desktop</launchable>
+  <provides><binary>tmp-calculadora</binary></provides>
+  <categories><category>Utility</category></categories>
+  <content_rating type="oars-1.1"/>
+  <releases><release version="1.0" date="2026-11-02"/></releases>
+</component>

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=TMP Calculadora
+GenericName=Calculadora de dosificación para acuarios
+Comment=Cuánto producto necesitas para tu acuario, con los datos de Tu Mundo Pet
+Comment[en]=Aquarium product dosing calculator with Tu Mundo Pet data
+Exec=tmp-calculadora
+Icon=io.github.navarretenoir.TMPCalculadora
+Terminal=false
+Categories=Utility;Calculator;
+Keywords=acuario;dosis;dosificacion;peces;anticloro;litros;calculadora;tumundopet;aquarium;dosing;
+StartupWMClass=io.github.navarretenoir.TMPCalculadora
+X-Developer=Javiera Navarrete

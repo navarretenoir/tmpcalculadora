@@ -1,0 +1,35 @@
+ection class="seccion oscuro" id="calculadora"
+  data-max-dosis="60"
+  data-max-envases="30">
+  <div class="contenedor">
+    <div class="enc">
+      <div>
+        <p class="kicker">Herramientas</p>
+        <h2 style="color:#fff">Calculadora de dosificación</h2>
+        <p>Dinos el litraje de tu acuario y te decimos cuánto rinde cada envase, con los datos reales del catálogo.</p>
+      </div>
+    </div>
+
+    <div class="calc-caja">
+      <div class="calc-campos">
+        <label>
+          <span>Litros de tu acuario</span>
+          <input id="calc-litros" type="number" value="120" min="1" max="50000" inputmode="numeric">
+        </label>
+        <label>
+          <span>¿Qué necesitas?</span>
+          <select id="calc-fam"><option value="">Todas las categorías</option></select>
+        </label>
+        <button class="btn btn--ambar" type="button" id="calc-ir">Calcular</button>
+      </div>
+      <div id="calc-out" class="mt16"></div>
+    </div>
+
+    <div class="aviso calc-nota mt16">
+      <b>Cómo calcula.</b> El rendimiento sale de la ficha de cada producto y hoy está cargado
+      en <b id="calc-cob">—</b> productos que se dosifican. Ordena por <b>costo por cada 1.000
+      litros tratados</b>, que es la única forma de comparar envases de distinto tamaño.
+      Los rendimientos y las dosis todavía tienen que validarse producto por producto con el equipo técnico: son datos que no pueden salir de una lectura automática de la ficha del proveedor.
+    </div>
+  </div>
+</section>
