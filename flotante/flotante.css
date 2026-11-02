@@ -11,7 +11,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .fab svg{width:22px;height:22px;flex:none;fill:var(--ambar)}
 .fab[aria-expanded=true]{background:var(--abismo)}
 .fab[aria-expanded=true]::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--lima);margin-left:2px}
-.fab.compacto{padding:0 14px 0 10px}
+.fab.enlinea{position:relative;left:auto;top:auto;right:auto;bottom:auto}
+.fab.compacto{padding:0 12px}.fab.compacto .fab-t{display:none}
 /* ---- ventana adaptativa ---- */
 .vel{position:fixed;inset:0;z-index:2147482990;background:rgba(5,44,43,.45);opacity:0;pointer-events:none;transition:opacity .2s}
 .hoja-modo .vel.on{opacity:1;pointer-events:auto}

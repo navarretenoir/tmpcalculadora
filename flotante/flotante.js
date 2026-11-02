@@ -19,24 +19,31 @@
   var LS = { get: function () { try { return JSON.parse(localStorage.getItem("tmpcalc.flot.v1") || "{}"); } catch (e) { return {}; } }, set: function (o) { try { localStorage.setItem("tmpcalc.flot.v1", JSON.stringify(o)); } catch (e) {} } };
   var SS = { get: function (k) { try { return JSON.parse(sessionStorage.getItem(k) || "null"); } catch (e) { return null; } }, set: function (k, v) { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
   var esc = C.esc, num = C.num, clp = C.clp, LIM = 10, mostrar = LIM, abierto = false, maxim = false, pos = SS.get("tmpcalc.pos"), anclado = "abajo";
-  var host, root, $, fab, panel, vel, cab;
+  var host, hostB, root, rootB, $, fab, panel, vel, cab;
 
   function ancla() {
     var xs = document.querySelectorAll('header a.icono-btn[title="Asesoría"], header a[href="/blogs/guias"].icono-btn'), i;
     for (i = 0; i < xs.length; i++) { var r = xs[i].getBoundingClientRect(); if (r.width > 0 && r.height > 0) return xs[i]; }
     return null;
   }
+  /* El botón vive DENTRO de la barra de la tienda (como un elemento más, justo antes de «Asesoría»): así se mueve, se achica y se
+   * reacomoda con ella (al cerrar el aviso superior, al cambiar el tamaño de la ventana, al fijarse la cabecera). Solo si no hay
+   * cabecera de escritorio (móvil, páginas sin barra) pasa a flotar abajo a la derecha, sobre el botón de WhatsApp. */
+  function estilosHost(h, enLinea) {
+    (enLinea ? ["display:inline-flex", "position:static", "width:auto", "height:44px", "flex:none", "align-self:center", "margin:0", "padding:0", "border:0", "overflow:visible", "visibility:visible", "opacity:1", "transform:none"]
+             : ["display:block", "position:static", "width:0", "height:0", "margin:0", "padding:0", "border:0", "overflow:visible", "visibility:visible", "opacity:1", "transform:none"]).forEach(function (d) { var k = d.split(":"); h.style.setProperty(k[0], k[1], "important"); });
+  }
   function posicionar() {
-    var a = ancla(), full = 190;
-    if (a) {
-      var r = a.getBoundingClientRect(), bus = document.querySelector('header form[action*="search"], header .buscador, header input[type=search]'), fin = 0;
-      if (bus) { var br = (bus.closest("form") || bus).getBoundingClientRect(); if (br.width) fin = br.right; }
-      fab.classList.toggle("compacto", r.left - fin < full + 28);
-      fab.setAttribute("aria-label", "TMP Calculadora");
-      var w = fab.offsetWidth || full;
-      fab.style.left = Math.max(8, r.left - w - 12) + "px"; fab.style.top = Math.max(8, r.top + (r.height - 44) / 2) + "px"; fab.style.right = "auto"; fab.style.bottom = "auto"; anclado = "arriba";
-    } else {                                                           // móvil o página sin cabecera: abajo a la derecha, sobre el botón de WhatsApp
-      fab.classList.remove("compacto"); fab.style.left = "auto"; fab.style.top = "auto"; fab.style.right = "16px"; fab.style.bottom = "calc(156px + env(safe-area-inset-bottom, 0px))"; anclado = "abajo";
+    var a = ancla();
+    if (a && a.parentNode) {
+      if (hostB.parentNode !== a.parentNode || hostB.nextSibling !== a) a.parentNode.insertBefore(hostB, a);
+      estilosHost(hostB, true); fab.classList.add("enlinea"); fab.style.left = fab.style.top = fab.style.right = fab.style.bottom = ""; anclado = "arriba";
+      var bus = document.querySelector('header form[action*="search"], header .buscador, header input[type=search]'), bw = bus ? (bus.closest("form") || bus).getBoundingClientRect().width : 999, c = fab.classList.contains("compacto");
+      if (!c && bw < 300) fab.classList.add("compacto"); else if (c && bw > 460) fab.classList.remove("compacto");
+    } else {
+      if (hostB.parentNode !== document.documentElement) document.documentElement.appendChild(hostB);
+      estilosHost(hostB, false); fab.classList.remove("enlinea"); fab.classList.remove("compacto");
+      fab.style.left = "auto"; fab.style.top = "auto"; fab.style.right = "16px"; fab.style.bottom = "calc(156px + env(safe-area-inset-bottom, 0px))"; anclado = "abajo";
     }
     if (abierto) distribuir();
   }
@@ -86,8 +93,8 @@
   }
 
   /* ---------- interfaz ---------- */
+  var MARCA_B = '<div class="raiz"><button class="fab" id="fab" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel" aria-label="TMP Calculadora">' + ICONO + '<span class="fab-t">TMP Calculadora</span></button></div>';
   var MARCA = '<div class="raiz" id="raiz">' +
-    '<button class="fab" id="fab" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel">' + ICONO + '<span class="fab-t">TMP Calculadora</span></button>' +
     '<div class="vel" id="vel"></div>' +
     '<section class="panel" id="panel" role="dialog" aria-label="TMP Calculadora, calculadora de dosificación">' +
       '<header class="cab" id="cab"><div class="asa"><i></i></div><div class="tit">' + ICONO + '<b>TMP Calculadora</b><small>dosificación</small></div>' +
@@ -147,14 +154,18 @@
     [].forEach.call(root.querySelectorAll("[data-v]"), function (v) { v.hidden = v.dataset.v !== t; }); $("#cuerpo").scrollTop = 0;
   }
 
+  function crearHost(id, enLinea) {
+    var h = document.createElement("div"); h.id = id; h.setAttribute("data-tmp", "calculadora"); estilosHost(h, enLinea);   // la tienda no puede ocultarlo con sus reglas
+    var r = h.attachShadow({ mode: "open" });
+    try { var hoja = new CSSStyleSheet(); hoja.replaceSync(CSS); r.adoptedStyleSheets = [hoja]; } catch (e) { var st = document.createElement("style"); st.textContent = CSS; r.appendChild(st); }
+    return { h: h, r: r };
+  }
   function montar() {
-    host = document.createElement("div"); host.id = "tmp-calculadora-flotante"; host.setAttribute("data-tmp", "calculadora");
-    ["display:block", "position:static", "width:0", "height:0", "margin:0", "padding:0", "border:0", "overflow:visible", "visibility:visible", "opacity:1", "transform:none"].forEach(function (d) { var k = d.split(":"); host.style.setProperty(k[0], k[1], "important"); });   // la tienda no puede ocultarlo con sus reglas
-    document.documentElement.appendChild(host);
-    root = host.attachShadow({ mode: "open" });
-    try { var hoja = new CSSStyleSheet(); hoja.replaceSync(CSS); root.adoptedStyleSheets = [hoja]; } catch (e) { var st = document.createElement("style"); st.textContent = CSS; root.appendChild(st); }
+    var pn = crearHost("tmp-calculadora-flotante", false), bt = crearHost("tmp-calculadora-boton", false);
+    host = pn.h; root = pn.r; hostB = bt.h; rootB = bt.r; document.documentElement.appendChild(host); document.documentElement.appendChild(hostB);
     var cont = document.createElement("div"); cont.innerHTML = MARCA; root.appendChild(cont.firstChild);
-    $ = function (s) { return root.querySelector(s); }; fab = $("#fab"); panel = $("#panel"); vel = $("#vel"); cab = $("#cab");
+    var contB = document.createElement("div"); contB.innerHTML = MARCA_B; rootB.appendChild(contB.firstChild);
+    $ = function (s) { return root.querySelector(s); }; fab = rootB.querySelector("#fab"); panel = $("#panel"); vel = $("#vel"); cab = $("#cab");
     var g = LS.get(); $("#fam").innerHTML = '<option value="">Todas las categorías (' + P.length + ')</option>' + C.familias(P).map(function (k) { return '<option value="' + esc(k[0]) + '">' + esc(k[0]) + " (" + k[1] + ")</option>"; }).join("");
     if (g.litros) $("#litros").value = g.litros; if (g.agua) $("#agua").value = g.agua; if (g.fam) $("#fam").value = g.fam; if (g.orden) $("#orden").value = g.orden;
     ["#litros", "#q"].forEach(function (s) { $(s).addEventListener("input", function () { calcular(true); }); }); ["#agua", "#fam", "#orden"].forEach(function (s) { $(s).addEventListener("change", function () { calcular(true); }); });
@@ -171,6 +182,7 @@
     if (window.ResizeObserver) { var hd = document.querySelector("header"); if (hd) new ResizeObserver(programar).observe(hd); }
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(programar);
     window.addEventListener("load", function () { posicionar(); setTimeout(posicionar, 600); });
+    setInterval(posicionar, 1000);                                   // sigue a la barra aunque cambie sin avisar (aviso cerrado, scripts de la tienda)
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", montar, { once: true }); else montar();
 })();
