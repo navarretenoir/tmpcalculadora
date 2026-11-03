@@ -5,7 +5,7 @@ Calculadora de dosificación para los productos de **Tu Mundo Pet** (tiendatumun
 - `windows/` — anfitrión WebView2 + instalador NSIS (`windows/dist/`).
 - `herramientas/construir_datos.py` — regenera los datos desde `datos/` (descargado de la tienda) con las correcciones de la auditoría.
 - `AUDITORIA.md` — revisión del código y de los cálculos de la calculadora de la tienda · `PRODUCTOS.md/.csv` — los 723 productos.
-Licencia: GPL-3.0-or-later (código). Logotipo, fotos, precios y datos de productos © Tu Mundo Pet. Desarrollada por **Javiera Navarrete** para Tu Mundo Pet con asistencia de IA generativa (ver `AI-USO.md`). Privacidad: `PRIVACY.md`.
+Licencia: GPL-3.0-or-later (código). Logotipo, fotos, precios y datos de productos © Tu Mundo Pet. Desarrollada por **Javiera Navarrete** para Tu Mundo Pet Privacidad: `PRIVACY.md`.
 
 ## Descargas
 Ver *Releases*: APK de Android, instalador de Windows, RPM, DEB y AppImage de Linux. macOS/iOS: proyecto Xcode en `apple/` (compilar en un Mac).
